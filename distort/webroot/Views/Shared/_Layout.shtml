@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    <title>Distort - Projection Mapping</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="white">
+
+    <!-- retina iPhone -->
+    <link rel="apple-touch-icon" href="img/icon120.png" sizes="120x120">
+    <!-- retina iPad -->
+    <link rel="apple-touch-icon" href="img/icon152.png" sizes="152x152">
+    <!--Android-->
+    <link rel="shortcut icon" href="img/icon196.png" sizes="196x196">
+
+    <meta name="author" content="Paul Heidicker, Silvan Dähn, Jakob Stecher, Kim Möller">
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+    <div class="distort-wrapper" ng-controller="distortArrangeCtrl">
+
+        <!-- NAVBAR / HEADER-->
+        <div class="container">
+            <nav class="navbar navbar-default navbar-fixed-top navbar-right">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                            <a href="#"><img class="logo" src="img/logo.png" alt="Distort" style="height: 32px;"></a>
+                            <div class="navbar-right">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-default navbar-btn top-nav-btn active" hm-tap="navigate(0)" >Einrichten</button>
+                                    <button type="button" class="btn btn-default navbar-btn top-nav-btn" hm-tap="navigate(1)">Präsentieren</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                            <a data-toggle="modal" data-target="#help-modal"><img class="help" src="img/help.png" alt="Help"></a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        <!-- MAIN VIEW -->
+        <div class="container top-inset" hm-dragend="mouseUp($event)">
+
+            <!-- ARRANGE VIEW -->
+            <div class="row arrange-wrapper nav-wrapped">
+                <div class="col-md-10 col-xs-10 col-lg-10">
+                    <ul class="nav nav-tabs">
+                        <li role="presentation" ng-class="{active: activeBeamer == 1}"><a href="#" class="tab-link" hm-tap="changeActiveBeamer(1)">Beamer 1</a></li>
+                        <li role="presentation" ng-class="{active: activeBeamer == 2}"><a href="#" class="tab-link" hm-tap="changeActiveBeamer(2)">Beamer 2</a></li>
+                    </ul>
+                    <div class="transform-view beamer-canvas-1" ng-class="{hidden: activeBeamer != 1}"></div>
+                    <div class="transform-view beamer-canvas-2" ng-class="{hidden: activeBeamer != 2}"></div>
+                </div>
+
+                <div class="col-md-2 col-xs-2 col-lg-2 button-group-right">
+                    <div class="space"></div>
+                        <div class="btn-group-vertical" role="group">
+                            <button type="button" class="btn btn-block btn-success" hm-tap="newTransform()">Hinzufügen</button>
+                            <button type="button" class="btn btn-block btn-danger" hm-tap="deleteTransform()" ng-class="{disabled: selectedTransform == null}">Entfernen</button>
+                        </div>
+
+                    <div class="space"></div>
+                        <div class="dropdown">
+                            <button type="button" class="btn btn-block btn-default btn-dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true" ng-class="{disabled: selectedTransform == null}">
+                                Textur ändern <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                <li role="presentation" ng-repeat="texture in textures">
+                                    <a role="menuitem" tabindex="-1" href="#" hm-tap="changeTexture(texture)">{{texture.name}}</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    <div class="space"></div>
+                        <div class="btn-group-vertical" role="group">
+                            <button type="button" class="btn btn-block btn-default" data-toggle="modal" data-target="#texture-set-modal">Konfiguration speichern</button>
+                            <button type="button" class="btn btn-block btn-default btn-dropdown-toggle" id="dropdownMenuLoad" data-toggle="dropdown" aria-expanded="true" ng-class="{disabled: textureSets.length == 0}">Konfiguration laden <span class="caret">
+                            </button>
+
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuLoad">
+                                    <li role="presentation" ng-repeat="set in textureSets">
+                                        <a role="menuitem" tabindex="-1" href="#" hm-tap="loadTextureSet(set)">{{set.name}}</a>
+                                    </li>
+                                </ul>
+
+                              </div>
+
+
+                            <div class="space"></div>
+                                <div class="btn-group-vertical" role="group" ng-class="{hidden: snapModeActive == true}">
+                                    <button type="button" class="btn btn-block btn-default" ng-class="{disabled: allTransforms.length == 0}" hm-tap="activateSnapMode()">Ecken verbinden</button>
+                                </div>
+                                    <div ng-class="{hidden: snapModeActive != true}">
+                                    <button type="button" class="btn btn-default" style="width: 47%; display: inline;" hm-tap="performSnap()">Ok</button>
+                                    <div style="width: 2%; display: inline-block;"></div>
+                                    <button type="button" class="btn btn-default" style="width: 47%; display: inline;" hm-tap="cancelSnap()">Zurück</button>
+                                  </div>
+
+
+                            <!-- Textur Modal -->
+                            <div class="modal fade" id="texture-set-modal" tabindex="-1" role="dialog" aria-labelledby="texture-set-label" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                            <h4 class="modal-title" id="texture-set-label">Neues Textur-Set erstellen</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form>
+                                                <div class="form-group">
+                                                    <label form="set-name-input" ng-submit="newTextureSet()">Geben Sie ihrem Textur-Set einen Namen:</label>
+                                                    <input type="name" class="form-control" id="set-name-input" placeholder="Name" ng-model="textureSetName" required>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary" data-dismiss="modal" hm-tap="newTextureSet()">Speichern</button>
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Help Modal -->
+                            <div class="modal fade bs-example-modal-lg" id="help-modal" tabindex="-2" role="dialog" aria-labelledby="help-label1" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header help-colored">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                            <h4 class="modal-title" id="myModalLabel">Hilfsübersicht: Einrichten</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading" role="tab" id="headingOne">
+                                                        <h4 class="panel-title">
+                                                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#help-navbar" aria-expanded="false" aria-controls="collapseOne">Navigations Bar</a>
+                                                        </h4>
+                                                    </div>
+                                                    <div id="help-navbar" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+                                                        <div class="panel-body">
+                                                            In der Navigantionsbar sind zum einen die Buttons zum Auswählen der Modi aufgehoben. Es kann zwischen dem Einrichtenmodus und dem Präsentationsmodus gewechselt werden. Außerdem kann
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading" role="tab" id="headingTwo">
+                                                        <h4 class="panel-title">
+                                                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#help-beamer" aria-expanded="false" aria-controls="collapseTwo">Multiple Beamer Support</a>
+                                                        </h4>
+                                                    </div>
+                                                    <div id="help-beamer" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                                                        <div class="panel-body">
+                                                            Distort bietet die Möglichkeit ein Objekt von verschiedenen Seiten mit verschiedenen Beamern zu bestrahlen. Über die Tabs kann zwischen den Perspektiven hin- und hergeschaltet werden.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading" role="tab" id="headingThree">
+                                                        <h4 class="panel-title">
+                                                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#help-function" aria-expanded="false" aria-controls="collapseThree">Funktionen</a>
+                                                        </h4>
+                                                    </div>
+                                                    <div id="help-function" style="" aria-expanded="false" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                                                        <ul class="list-group">
+                                                            <li class="list-group-item"><u>Hinzufügen</u></br>Erzeugt nach Belieben viele neue Rechtecke. Durch das Bewegen der Eckpunkte können die Rechtecke verzerrt werden.</li>
+                                                            <li class="list-group-item"><u>Entfernen</u></br>Nach dem Anwählen eines bereits vorhandenen Rechtecks kann durch das Klicken auf "Entfernen" dieses gelöscht werden.</li>
+                                                            <li class="list-group-item"><u>Textur ändern</u></br>Nach dem Anwählen eines vorhandenen Rechtecks kann durch das Klicken auf "Texturen ändern" in einem Dropdown-Menü eine neue Texture für das Rechteck ausgewählt werden.</li>
+                                                            <li class="list-group-item"><u>Textur speichern</u></br>Der Menüpunkt "Texturen speichern" ermöglicht das Abspeichern eines Sets von Rechtecken, welche im Präsentationsmodus einfach abrufbar sind.</li>
+                                                            <li class="list-group-item"><u>Textur laden</u></br>"Texturen laden" ermöglicht es ein vorher abgespeichertes Set von Rechtecken wieder zuladen.</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading" role="tab" id="headingFour">
+                                                        <h4 class="panel-title">
+                                                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#help-use" aria-expanded="true" aria-controls="collapseFour">Bedienung (Allgemein)</a>
+                                                        </h4>
+                                                    </div>
+                                                    <div id="help-use" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingFour">
+                                                        <div class="panel-body">
+                                                            Nutze das Menü um neue Rechtecke zu erzeugen. Ziehe die Eckepunkte auf die entsprechenden Ecken deines Models. Bei Bedarf kann zwischen den Beamern gewechselt werden um auch auf Dächer Texturen zu projiezieren. Das Speichern und Laden ermöglicht einfaches Hin- und Herwechseln zwischen vorbereiteten Sets.
+                                                        </div>
+                                                    </div>
+                                                </div>
+												<div class="panel panel-default">
+                                                    <div class="panel-heading" role="tab" id="headingFive">
+                                                        <h4 class="panel-title">
+                                                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#help-snap" aria-expanded="false" aria-controls="collapseFive">Snap Mode</a>
+                                                        </h4>
+                                                    </div>
+                                                    <div id="help-snap" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFive">
+                                                        <div class="panel-body">
+                                                            Mit dem Snap Mode können Eckpunkte zweier Rechtecke verbunden werden. Wird eines der Rechtecke verschoben wird das verbliebende Rechteck, ausgehend von der "gesnapten" Ecke, verzerrt. Es können auch mehrere Punkte verbunden werden.</br></br>Es ist wie folgt vorzugehen:</br>1. Im Menü wird der Snap Mode angewählt. Es erscheinen die Punkte "Snap" und "Cancel"</br>2. Die beiden Punkte, welche verbunden werden sollen, müssen nacheinander angewählt werden. Ist dies erfolgreich gesehen, sind diese Punkte nun blau.</br>3. Durch das Klicken auf "Snap" wird die Aktion abgeschlossen.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                    <!-- PRESENTATION CONTROLLER  -->
+                    <div class="row presentation-wrapper nav-wrapped hidden">
+
+                      <!-- PLACEHOLDER -->
+                      <div class="col-lg-offset-3 col-md-offset-3 col-lg-6 col-md-6 col-xs-12 col-sm-12" ng-class="{hidden: textureSets.length > 0}">
+                        <div class="panel panel-danger">
+                          <div class="panel-heading">Tipp</div>
+                          <div class="panel-body">
+                            Speichere Sets von Texturenbelegungen im "Einrichten-Modus" ab, um hier aus allen abgespeicherten Sets mit einem Klick wählen zu können.
+                          </div>
+                        </div>
+                      </div>
+
+                        <div class="col-lg-4 col-md-4 col-xs-4 col-sm-4" ng-repeat="set in textureSets">
+                            <div class="texture-set-element" hm-tap="loadTextureSet(set)">
+                                <a href="#" class="thumbnail" ng-class="{active: activeTextureSet.name == set.name}">
+                                    <img src={{set.textures[0].texture.url}}>
+                                    <div class="caption">
+                                        <h3>{{set.name}}</h3>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- PRESENTATION CONTROLLER  -->
+
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER-->
+        <div class="container">
+            <nav class="navbar navbar-default navbar-fixed-bottom">
+                <div class="container">
+                    <p class="muted credit footer">
+                        <a href="impressum.html">Impressum</a> | <a href="about.html">Über uns</a>
+                    </p>
+                </div>
+            </nav>
+        </div>
+
+
+        <script src="lib/jquery/jquery.min.js"></script>
+        <script src="lib/bootstrap/bootstrap.js"></script>
+        <script src="lib/angular/angular.js"></script>
+        <script src="lib/angular/angular-resource.js"></script>
+        <script src="lib/angular/angular-cookies.js"></script>
+        <script src="lib/angular/angular-cookies.js"></script>
+        <script src="lib/angular/bootstrap-ui.js"></script>
+        <script src="js/model.js"></script>
+        <script src="js/server-config.js"></script>
+        <script src="js/angular-dragdrop.js"></script>
+        <script src="js/jquery.ui.js"></script>
+        <script src="js/angular-dragdrop.js"></script>
+        <script src="js/app.js"></script>
+        <script src="js/services.js"></script>
+        <script src="js/controllers.js"></script>
+        <script src="js/filters.js"></script>
+        <script src="js/directives.js"></script>
+        <script src="js/hammer.js"></script>
+        <script src="js/gestures.js"></script>
+        <script src="js/PerspectiveTransform.js"></script>
+</body>
+</html>

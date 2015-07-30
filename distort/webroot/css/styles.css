@@ -1,0 +1,205 @@
+/* Offline fonts */
+
+@font-face {
+    font-family: Lato;
+    src: url('/fonts/Lato/Lato-Regular.ttf');
+}
+
+/* General Styles */
+
+body {
+	background-color: #f2f2f2;
+	font-family: Lato, sans-serif;
+}
+
+p a {
+	color: #666666;
+}
+
+.modal-header {
+	background-color: #f2f2f2;
+	font-family: Lato, sans-serif;
+}
+
+.form-group {
+	font-weight: 100;
+}
+
+.tab-link {
+	color:#777;
+}
+
+.btn {
+	color: #666666;
+}
+
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+	background-color: #8CE0A1;
+	border-color: #ddd;
+	color: white;
+}
+
+.btn-success {
+	color: #8CE0A1;
+	border-color: #ddd;
+	background-color: #ffffff;
+}
+
+.btn-success:hover,
+.btn-success:active,
+.btn-success:focus {
+	background-color: #8CE0A1;
+	border-color: #ddd;
+}
+
+.btn-danger {
+	color: #EE8272;
+	border-color: #ddd;
+	background-color: #ffffff;
+}
+
+.btn-danger:hover,
+.btn-danger:active,
+.btn-danger:focus {
+	background-color: #EE8272;
+	border-color: #ddd;
+}
+
+.btn-danger.disabled {
+	background-color: #ffffff;
+	border-color: #cccccc;
+	opacity: 0.65;
+	color: #666666;
+}
+
+.navbar {
+	background-color: #ffffff;
+}
+
+.space {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.logo {
+	margin-top: 9px;
+}
+
+.footer {
+	margin-top: 12px;
+}
+
+.top-inset {
+	margin-top: 70px;
+}
+
+.button-group-right {
+	margin-top: 36px;
+}
+
+.btn-group-vertical {
+	width: 100%;
+}
+
+.btn-separator:after {
+	content: '';
+	float: left;
+	display: block;
+	background: #ADADAD;
+	margin: 0 5px;
+	height: 26px;
+	width: 1px;
+}
+
+.help {
+	float: right;
+	height: 20px;
+	width: 20px;
+	margin-top: 16px;
+	margin-right: 10px;
+	opacity: 0.25;
+}
+
+.help:hover {
+	opacity: 0.4;
+}
+
+.help-colored{
+	color: #A94442;
+	background-color: #F2DEDE;
+	border-color: #EBCCD1;
+}
+
+.hidden {
+	display: none;
+}
+
+/* Styles for the transform canvas and inside */
+.transform-view {
+	border-bottom-right-radius: 5px;
+	border-bottom-left-radius: 5px;
+	margin-top: 0px;
+	margin-bottom: 30px;
+	border: 1px solid #ddd;
+	border-top: none;
+	border-color: #ddd;
+	background-color: #fff;
+	min-height: 500px;
+	overflow: hidden;
+	position: relative;
+}
+
+.rect {
+	position: absolute;
+	background-image: url('../textures/test1.jpg');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	width: 300px;
+	height: 200px;
+	cursor: move;
+}
+
+.pt {
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	margin-top: -10px;
+	margin-left: -10px;
+	border-radius: 10px;
+	background-color: rgba(240, 138, 118, 0.8);
+	cursor: nwse-resize;
+}
+
+.selected {
+	outline: 3px solid rgba(240, 138, 118, 0.8);
+}
+
+.point-selected {
+  background-color: rgba(88, 71, 238, 0.8);
+}
+
+.point-snapped {
+  background-color: rgba(255, 211, 78, 1.0);
+}
+
+div[role='bl'].pt {
+	cursor: nesw-resize;
+}
+div[role='tr'].pt {
+	cursor: nesw-resize;
+}
+
+/* Presentation Mode */
+.texture-set-element {
+}
+
+.texture-set-element img {
+	width: 100%;
+	height: 250px;
+}
+
+.texture-collection {
+}
